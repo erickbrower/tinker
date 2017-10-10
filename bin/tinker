@@ -34,7 +34,7 @@ class Tinker < Thor
     show_table
   end
 
-  desc "delet ..ARGS", "Deletes a Todo"
+  desc "delete ..ARGS", "Deletes a Todo"
   def delete(*args)
     args.each do |id|
       DeleteTodoService.perform(id: id)
