@@ -1,0 +1,54 @@
+#!/usr/bin/env ruby
+
+require 'bundler'
+Bundler.require
+
+require './lib/tinker.rb'
+
+class Tinker < Thor
+  desc "add ..ARGS", "Add Todos with text from each ARGS"
+  def add(*args)
+    todos = args.map do |todo_text|
+      AddTodoService.perform(text: todo_text)
+    end
+    show_table
+  end
+
+  desc "list", "Show all current Todos"
+  def list
+    show_table
+  end
+
+  desc "complete ..ARGS", "Completes Todos by ids in ARGS"
+  def complete(*args)
+    args.each do |id|
+      CompleteTodoService.perform(id: id)
+    end
+    show_table
+  end
+
+  desc "edit ..ARGS", "Edits the text of a single todo. First ARG is the id, second is the new text"
+  def edit(*args)
+    id, new_text = args
+    EditTodoService.perform(id: id, text: new_text)
+    show_table
+  end
+
+  desc "delet ..ARGS", "Deletes a Todo"
+  def delete(*args)
+    args.each do |id|
+      DeleteTodoService.perform(id: id)
+    end
+    show_table
+  end
+
+  private
+  def show_table
+    rows = Todo.all.map do |todo|
+      [todo.id, todo.text, todo.completed]
+    end
+    puts Terminal::Table.new(headings: %w{ID Todo Completed?}, rows: rows)
+  end
+end
+
+Tinker.start
